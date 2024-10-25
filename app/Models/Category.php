@@ -9,7 +9,13 @@ class Category extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'category'
+    ];
+
+    public $timestamps = false;
+
     public function tasks() {
-        return $this->belongsToMany(Task::class);
+        return $this->belongsToMany(Task::class, 'task_categories');
     }
 }

@@ -28,7 +28,11 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return new UserResource($user);
+        $token = $user->createToken('api-token')->plainTextToken;
+        return response()->json([
+            'user' => new UserResource($user),
+            'token' => $token
+        ]);
     }
 
     public function login(Request $request) {
@@ -41,6 +45,12 @@ class UserController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        return new UserResource(Auth::user());
+        $user = Auth::user();
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        return response()->json([
+            'user' => new UserResource($user),
+            'token' => $token
+        ]);    
     }
 }

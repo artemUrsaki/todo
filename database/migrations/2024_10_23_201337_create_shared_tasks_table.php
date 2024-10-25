@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('shared_tasks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('task_id')->constrained();
-            $table->foreignId('user_id')->constrained();
-            $table->timestamps();
+            $table->foreignId('shared_with_user_id')->constrained(
+                'users', 'id'
+            );
         });
     }
 

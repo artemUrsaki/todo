@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\SharedTask;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use App\Models\Task;
 
 class UserSeeder extends Seeder
 {
@@ -17,7 +19,7 @@ class UserSeeder extends Seeder
             ->hasTasks(3)
             ->create();
 
-        User::factory(10)
+        User::factory(12)
             ->hasTasks(5)
             ->create();
 
