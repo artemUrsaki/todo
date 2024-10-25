@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('task_categories', function (Blueprint $table) {
-            $table->id();
+            $table->id('task_category_id');
             $table->foreignId('task_id')->constrained();
             $table->foreignId('category_id')->constrained();
         });

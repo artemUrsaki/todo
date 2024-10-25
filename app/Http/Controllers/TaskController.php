@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\CategoryFilter;
 use App\Http\Requests\CategoryTaskRequest;
 use App\Http\Requests\ShareTaskRequest;
 use App\Http\Resources\TaskResource;
@@ -9,26 +10,48 @@ use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Category;
 use DB;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\User;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class TaskController extends Controller
 {
     public function index(Request $request) {
         $user = $request->user();
+        // return TaskResource::collection(
+        //     QueryBuilder::for(Task::class)
+        //     ->leftJoin('task_categories', 'id', '=', 'task_categories.task_id')
+        //     ->leftJoin('categories', 'task_categories.category_id', '=', 'categories.category_id')
+        //     ->where('user_id', $user->id)
+        //         ->orWhereIn(
+        //             'id',
+        //             DB::table('shared_tasks')
+        //                 ->select('task_id')
+        //                 ->where('shared_with_user_id', $user->id)
+        //         )->allowedFilters([
+        //             AllowedFilter::exact('categories.category', null, false),
+        //             AllowedFilter::exact('is_completed'),
+        //         ])->orderBy('id')
+        //     ->paginate(5)
+        // );
+        
         return TaskResource::collection(
-            Task::where('user_id', $user->id)
-                ->orWhereIn(
-                    'id',
-                    DB::table('shared_tasks')
-                        ->select('task_id')
-                        ->where('shared_with_user_id', $user->id)
-                )->orderBy('id')
-                ->paginate(5)
+            QueryBuilder::for(Task::class)
+            ->where('user_id', $user->id)
+            // ->orWhereIn('id',  function (Builder $query) use ($user) {
+            //     $query->select('task_id')
+            //         ->from('shared_tasks')
+            //         ->where('shared_with_user_id', $user->id);
+            // })
+            ->allowedFilters([
+                AllowedFilter::custom('category', new CategoryFilter),
+                AllowedFilter::exact('is_completed'),
+            ])->paginate(5)
         );
-    }
+    }   
 
     public function show(Task $task) {
         if (auth()->user()->cannot('view', $task)) {

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('shared_tasks', function (Blueprint $table) {
-            $table->id();
+            $table->id('shared_tasks_id');
             $table->foreignId('task_id')->constrained();
             $table->foreignId('shared_with_user_id')->constrained(
                 'users', 'id'
