@@ -150,8 +150,8 @@ class TaskController extends Controller
         if ($user->cannot('complete', $task)) {
             abort(403, 'You are not authorized');
         }
-        $is_completed = $task->is_completed;
-        $task->update(['is_completed' => !$is_completed]);
+        $is_completed = !$task->is_completed;
+        $task->update(['is_completed' => $is_completed]);
 
         if ($is_completed) {
             Mail::to($user_email)->send(new TaskMail($user->name, "You task was marked as completed!"));
@@ -163,9 +163,12 @@ class TaskController extends Controller
     public function setCategory(CategoryTaskRequest $request, Task $task) {
         $user = $request->user();
         $user_email = $user->email;
-
+        
         $category_name = $request->category;
-        $category_id = Category::select('id')->where('category', $category_name)->get();
+        $category = Category::firstOrCreate([
+            'category' => $category_name
+        ]);
+        $category_id = $category->category_id;
         $task->categories()->attach($category_id);
 
         Mail::to($user_email)->send(new TaskMail($user->name, "You have assigned a category to your task!"));
@@ -174,9 +177,10 @@ class TaskController extends Controller
     public function unsetCategory(CategoryTaskRequest $request, Task $task) {
         $user = $request->user();
         $user_email = $user->email;
-        
+
         $category_name = $request->category;
-        $category_id = Category::select('id')->where('category', $category_name)->get();
+        $category = Category::where('category', '=', $category_name)->firstOrFail();
+        $category_id = $category->category_id;
         $task->categories()->detach($category_id);
 
         Mail::to($user_email)->send(new TaskMail($user->name, "You have removed the category of your task"));
