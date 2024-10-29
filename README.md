@@ -81,7 +81,7 @@ Výstup:
 ##
 
 ```http
-POST /tasks
+  POST /tasks
 ```
 Vytvorí novú úlohu.
 
@@ -100,7 +100,7 @@ Výstup:
 ##
 
 ```http
-PUT/PATCH /tasks/{task_id}
+  PUT/PATCH /tasks/{task_id}
 ```
 Aktualizuje existujúcu úlohu.
 
@@ -125,7 +125,7 @@ Výstup:
 ##
 
 ```http
-DELETE /tasks/{task_id}
+  DELETE /tasks/{task_id}
 ```
 Vymaže úlohu.
 
@@ -137,7 +137,7 @@ Výstup:
 ##
 
 ```http
-POST /tasks/{id}/restore
+  POST /tasks/{id}/restore
 ```
 Obnoví predtým vymazanú úlohu.
 
@@ -149,7 +149,7 @@ Výstup:
 ##
 
 ```http
-POST /tasks/{task_id}/share
+  POST /tasks/{task_id}/share
 ```
 Zdieľa úlohu s iným používateľom.
 
@@ -167,7 +167,7 @@ Výstup:
 ##
 
 ```http
-POST /tasks/{task_id}/unshare
+  POST /tasks/{task_id}/unshare
 ```
 Zruší zdieľanie úlohy s konkrétnym používateľom.
 
@@ -185,7 +185,7 @@ Výstup:
 ##
 
 ```http
-POST /tasks/{task_id}/setCategory
+  POST /tasks/{task_id}/setCategory
 ```
 Priradí kategóriu k úlohe.
 
@@ -203,7 +203,7 @@ Výstup:
 ##
 
 ```http
-POST /tasks/{task_id}/unsetCategory
+  POST /tasks/{task_id}/unsetCategory
 ```
 Odstráni kategóriu z úlohy.
 
