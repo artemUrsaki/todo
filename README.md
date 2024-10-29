@@ -1,66 +1,176 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Docs:
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Autentifikácia
 
-## About Laravel
+Používa sa Laravel Sanctum, takže po registrácii potrebujete máť API-token v Header pri requeste.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+POST /register
+Registruje nového používateľa a vráti údaje o používateľovi spolu s autentifikačným tokenom.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Vstup:
+{
+  "name": "Example Surname",
+  "email": "example@example.com",
+  "password": "password"
+}
 
-## Learning Laravel
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+POST /login
+Autentifikuje existujúceho používateľa a vráti autentifikačný token.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Vstup:
+{
+  "email": "john@example.com",
+  "password": "securePassword123"
+}
 
-## Laravel Sponsors
+Vystup:
+200 OK - Vráti údaje o používateľovi a token.
+401 Unauthorized - Nesprávne prihlasovacie údaje.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
 
-### Premium Partners
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+GET /users
+Vráti zoznam všetkých registrovaných používateľov. Autentifikácia nie je potrebná.
 
-## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-## Code of Conduct
+GET /tasks
+Vráti stránkovaný zoznam všetkých úloh pre autentifikovaného používateľa. Podporuje filtrovanie podľa stavu dokončenia a kategórie.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Pre filtrovanie sa používa spatie/laravel-query-builder package. Aby filtrovať výstup je potrebné použiť "filter[hodnota]" ako query parameter
+Príklad:
 
-## Security Vulnerabilities
+localhost:8000/api/tasks?filter[is_completed]=1&filter[category]=menoCategorii
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+GET /tasks/own
+Vráti úlohy, ktoré vytvoril autentifikovaný používateľ. Je možné filtrovanie.
+
+
+
+GET /tasks/shared
+Vráti úlohy, ktoré sú zdieľané s autentifikovaným používateľom. Je možné filtrovanie.
+
+
+
+GET /tasks/{task_id}
+Vráti detaily konkrétnej úlohy.
+
+Výstup:
+200 OK - Vráti detaily úlohy.
+403 Forbidden - Používateľ nemá oprávnenie zobraziť úlohu.
+
+
+
+POST /tasks
+Vytvorí novú úlohu.
+
+Vstup:
+{
+  "name": "New Task",
+  "content": "Task details"
+}
+
+Výstup:
+201 Created - Vráti vytvorenú úlohu.
+400 Bad Request - Chyby validácie.
+
+
+
+PUT/PATCH /tasks/{task_id}
+Aktualizuje existujúcu úlohu.
+
+Vstup PUT:
+{
+  "name": "Updated name",
+  "content": "Updated content"
+}
+
+V prípade PATCH je potrebné ukázať aspoň jednu vstupnú hodnotu:
+{
+  "name": "Updated name"
+}
+
+Výstup:
+200 OK - Úloha bola úspešne aktualizovaná.
+403 Forbidden - Používateľ nemá oprávnenie aktualizovať úlohu.
+
+
+
+DELETE /tasks/{task_id}
+Vymaže úlohu.
+
+Výstup:
+200 OK - Úloha bola úspešne vymazaná.
+403 Forbidden - Používateľ nemá oprávnenie vymazať úlohu.
+
+
+
+POST /tasks/{id}/restore
+Obnoví predtým vymazanú úlohu.
+
+Výstup:
+200 OK - Úloha bola obnovená.
+403 Forbidden - Používateľ nemá oprávnenie obnoviť úlohu.
+
+
+
+POST /tasks/{task_id}/share
+Zdieľa úlohu s iným používateľom.
+
+Vstup:
+{
+  "user_id": 2 //používateľ, s ktorým chceme zdieľať úlohu
+}
+
+Výstup:
+200 OK - Úloha bola úspešne zdieľaná.
+403 Forbidden - Používateľ nemá oprávnenie zdieľať úlohu.
+
+
+
+POST /tasks/{task_id}/unshare
+Zruší zdieľanie úlohy s konkrétnym používateľom.
+
+Vstup:
+{
+  "user_id": 2 //používateľ, s ktorým chceme zrušiť zdieľanie
+}
+
+Výstup:
+200 OK - Úloha bola úspešne zdieľaná.
+403 Forbidden - Používateľ nemá oprávnenie nezdieľať úlohu.
+
+
+
+POST /tasks/{task_id}/setCategory
+Priradí kategóriu k úlohe.
+
+Vstup:
+{
+  "category": "Sport"
+}
+
+Výstup:
+200 OK - Kategória bola priradená k úlohe.
+403 Forbidden - Používateľ nemá oprávnenie priradiť kategóriu k úlohe.
+
+
+
+POST /tasks/{task}/unsetCategory
+Odstráni kategóriu z úlohy.
+
+Vstup:
+{
+  "category": "Sport"
+}
+
+Výstup:
+200 OK - Kategória bola priradená k úlohe.
+403 Forbidden - Používateľ nemá oprávnenie odstrániť kategóriu z úlohy.
+
+Pri každom requeste sa okrem zobrazovania úloh alebo userov (/tasks, /tasks/{id}, /tasks/own, /tasks/shared, /users) a autentifikácii (/login, /register) odošle e-mail používateľovi.
