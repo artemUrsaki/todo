@@ -21,35 +21,49 @@ class TaskController extends Controller
 {
     public function index(Request $request) {
         $user = $request->user();
-        // return TaskResource::collection(
-        //     QueryBuilder::for(Task::class)
-        //     ->leftJoin('task_categories', 'id', '=', 'task_categories.task_id')
-        //     ->leftJoin('categories', 'task_categories.category_id', '=', 'categories.category_id')
-        //     ->where('user_id', $user->id)
-        //         ->orWhereIn(
-        //             'id',
-        //             DB::table('shared_tasks')
-        //                 ->select('task_id')
-        //                 ->where('shared_with_user_id', $user->id)
-        //         )->allowedFilters([
-        //             AllowedFilter::exact('categories.category', null, false),
-        //             AllowedFilter::exact('is_completed'),
-        //         ])->orderBy('id')
-        //     ->paginate(5)
-        // );
-        
         return TaskResource::collection(
             QueryBuilder::for(Task::class)
-            ->where('user_id', $user->id)
-            // ->orWhereIn('id',  function (Builder $query) use ($user) {
-            //     $query->select('task_id')
-            //         ->from('shared_tasks')
-            //         ->where('shared_with_user_id', $user->id);
-            // })
+            ->leftJoin('task_categories', 'tasks.id', '=', 'task_categories.task_id')
+            ->leftJoin('categories', 'task_categories.category_id', '=', 'categories.category_id')
+            ->whereRaw('(user_id = ? or id in (select task_id from shared_tasks where shared_with_user_id = ?))', [$user->id, $user->id])
             ->allowedFilters([
                 AllowedFilter::custom('category', new CategoryFilter),
                 AllowedFilter::exact('is_completed'),
-            ])->paginate(5)
+            ])
+            ->paginate(5)
+        );
+    }  
+
+    public function indexOwn(Request $request) {
+        $user = $request->user();
+        return TaskResource::collection(
+            QueryBuilder::for(Task::class)
+            ->leftJoin('task_categories', 'tasks.id', '=', 'task_categories.task_id')
+            ->leftJoin('categories', 'task_categories.category_id', '=', 'categories.category_id')
+            ->where('user_id', $user->id)
+            ->allowedFilters([
+                AllowedFilter::custom('category', new CategoryFilter),
+                AllowedFilter::exact('is_completed'),
+            ])
+            ->paginate(5)
+        );
+    }   
+    public function indexShared(Request $request) {
+        $user = $request->user();
+        return TaskResource::collection(
+            QueryBuilder::for(Task::class)
+            ->leftJoin('task_categories', 'tasks.id', '=', 'task_categories.task_id')
+            ->leftJoin('categories', 'task_categories.category_id', '=', 'categories.category_id')
+            ->whereIn('id', function (Builder $query) use ($user) {
+                $query->select('task_id')
+                ->from('shared_tasks')
+                ->where('shared_with_user_id', $user->id);
+            })
+            ->allowedFilters([
+                AllowedFilter::custom('category', new CategoryFilter),
+                AllowedFilter::exact('is_completed'),
+            ])
+            ->paginate(5)
         );
     }   
 
@@ -62,6 +76,7 @@ class TaskController extends Controller
 
     public function store(StoreTaskRequest $request) {
         $user_id = $request->user()->id;
+        
         return new TaskResource(Task::create([
             'name' => $request->name, 
             'content' => $request->content,

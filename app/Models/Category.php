@@ -13,9 +13,11 @@ class Category extends Model
         'category'
     ];
 
+    protected $primaryKey = 'category_id';
+
     public $timestamps = false;
 
     public function tasks() {
-        return $this->belongsToMany(Task::class, 'task_categories');
+        return $this->belongsToMany(Task::class, 'task_categories', 'category_id', 'task_id');
     }
 }

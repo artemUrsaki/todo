@@ -19,7 +19,7 @@ class CategorySeeder extends Seeder
         $categories = Category::all();
 
         Task::all()->random(40)->each(function (Task $task) use ($categories) {
-            $task->categories()->attach($categories->random()->id);
+            $task->categories()->attach($categories->random()->category_id);
         });
     }
 }

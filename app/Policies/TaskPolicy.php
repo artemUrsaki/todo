@@ -66,6 +66,6 @@ class TaskPolicy
 
     public function complete(User $user, Task $task): bool
     {
-        return $task->user_id === $user->id;
+        return $task->user_id === $user->id || $task->sharedTasks->contains($user->id);
     }
 }

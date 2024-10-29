@@ -14,7 +14,10 @@ Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
+    Route::get('/tasks/own', [TaskController::class, 'indexOwn']);
+    Route::get('/tasks/shared', [TaskController::class, 'indexShared']);
     Route::apiResource('/tasks', TaskController::class);
+
     Route::post('/tasks/{id}/restore', [TaskController::class, 'restore']);
 
     Route::post('/tasks/{task}/share', [TaskController::class, 'share']);
